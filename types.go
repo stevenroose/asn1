@@ -237,8 +237,11 @@ func (ctx *Context) decodeString(data []byte, value reflect.Value) error {
  * Custom types
  */
 
+// Oid is used to encode and decode ASN.1 OBJECT IDENTIFIERs.
 type Oid []uint
 
+// Cmp returns zero if both Oids are the same, a negative value if oid
+// lexicographically precedes other and a positive value otherwise.
 func (oid Oid) Cmp(other Oid) int {
 	for i, n := range oid {
 		if i >= len(other) {
@@ -251,6 +254,7 @@ func (oid Oid) Cmp(other Oid) int {
 	return len(oid) - len(other)
 }
 
+// String returns the dotted representation of oid.
 func (oid Oid) String() string {
 	if len(oid) == 0 {
 		return ""
@@ -316,6 +320,7 @@ func (ctx *Context) decodeOid(data []byte, value reflect.Value) error {
 	return nil
 }
 
+// Null is used to encode and decode ASN.1 NULLs.
 type Null struct{}
 
 func (ctx *Context) encodeNull(value reflect.Value) ([]byte, error) {

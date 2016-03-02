@@ -21,16 +21,115 @@ type expectedFieldElement struct {
 	opts  *fieldOptions
 }
 
-// Decode BER or DER data without an option string.
-// See (*Context) DecodeWithOptions() for further details.
+// Decode parses the given data into obj. The argument obj should be a reference
+// to the value that will hold the parsed data.
+//
+// See (*Context).DecodeWithOptions() for further details.
+//
 func (ctx *Context) Decode(data []byte, obj interface{}) (rest []byte, err error) {
 	return ctx.DecodeWithOptions(data, obj, "")
 }
 
-// Decode BER or DER data using an option string that are handled the same way
-// as struct tags.
-// Since the given object will be filled with the parsed data, it should be a
-// reference.
+// DecodeWithOptions parses the given data into obj using the additional
+// options. The argument obj should be a reference to the value that will hold
+// the parsed data.
+//
+// It uses the reflect package to inspect obj and decode the ASN.1 data
+// structure provided by data. The Context defines the decoding rules (BER or
+// DER) and the types available for CHOICE types.
+//
+// The asn1 package maps Go types to ASN.1 data structures. The package also
+// provides types to specific ASN.1 data structures. The default mapping is
+// shown in the table below:
+//
+//	Go type                | ASN.1 universal tag
+//	-----------------------|--------------------
+//	bool                   | BOOLEAN
+//	All int and uint types | INTEGER
+//	*big.Int               | INTEGER
+//	string                 | OCTET STRING
+//	[]byte                 | OCTET STRING
+//	asn1.Oid               | OBJECT INDETIFIER
+//	asn1.Null              | NULL
+//	Any array or slice     | SEQUENCE OF
+//	Any struct             | SEQUENCE
+//
+// Arrays and slices are decoded using different rules. A slice is always
+// appended while an array requires an exact number of elements, otherwise a
+// ParseError is returned.
+//
+// The default mapping can be changed using options provided in the argument
+// options (for the root value) or via struct tags for struct fields. Struct
+// tags use the namei space "asn1".
+//
+// The available options for encoding and decoding are:
+//
+//	tag
+//
+// This option requires an numeric argument (ie: "tag:1") and indicates that a
+// element is encoded and decoded as a context specific element with the given
+// tag number. The context specific class can be overridden with the options
+// "application" or "universal".
+//
+//	universal
+//
+// Sets the tag class to universal. Requires "tag".
+//
+//	application
+//
+// Sets the tag class to application. Requires "tag".
+//
+//	explicit
+//
+// Indicates the element is encoded with an enclosing tag. It's usually
+// used in conjunction with "tag".
+//
+//	optional
+//
+// Indicates that an element can be suppressed.
+//
+// A missing element that is not marked with "optional" or "default" causes a
+// ParseError to be returned during decoding. A missing element marked as
+// optional is left untouched.
+//
+// During encoding, a zero value elements is suppressed from output if it's
+// marked as optional.
+//
+//	default
+//
+// This option is handled similarly to the "optional" option but requires a
+// numeric argument (ie: "default:1").
+//
+// A missing element that is marked with "default" is set to the given default
+// value during decoding.
+//
+// A zero value marked with "default" is suppressed from output  when encoding
+// is set to DER or is encoded with the given default value when encoding is set
+// to BER.
+//
+//	indefinite
+//
+// This option is used only during encoding and causes a constructed element to
+// be encoded using the indefinite form.
+//
+//	choice
+//
+// Indicates that an element can be of one of several types as defined by
+// (*Context).AddChoice()
+//
+//	set
+//
+// Indicates that a struct, array or slice should be encoded and decoded as a
+// SET instead of a SEQUENCE.
+//
+// It also affects the way that structs are encoded and decoded in DER. A struct
+// marked with "set" has its fields always encoded in the ascending order of its
+// tags, instead of following the order that the fields are defined in the
+// struct.
+//
+// Similarly, a struct marked with "set" always enforces that same order when
+// decoding in DER.
+//
 func (ctx *Context) DecodeWithOptions(data []byte, obj interface{}, options string) (rest []byte, err error) {
 
 	opts, err := parseOptions(ctx, options)

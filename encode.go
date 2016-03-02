@@ -6,14 +6,17 @@ import (
 	"unicode"
 )
 
-// Encode BER/DER data without an option string.
-// See (*Context) EncodeWithOptions() for further details.
+// Encode returns the ASN.1 encoding of obj.
+//
+// See (*Context).EncodeWithOptions() for further details.
 func (ctx *Context) Encode(obj interface{}) (data []byte, err error) {
 	return ctx.EncodeWithOptions(obj, "")
 }
 
-// Encode BER or DER data using an option string that are handled the same way
-// as struct tags.
+// EncodeWithOptions returns the ASN.1 encoding of obj using additional options.
+//
+// See (*Context).DecodeWithOptions() for further details regarding types and
+// options.
 func (ctx *Context) EncodeWithOptions(obj interface{}, options string) (data []byte, err error) {
 
 	opts, err := parseOptions(ctx, options)

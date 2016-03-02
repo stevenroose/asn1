@@ -11,7 +11,7 @@ import (
 // TODO: doc
 // TODO make RawValue internal
 
-// Classes
+// ASN.1 class tags.
 const (
 	ClassUniversal       = 0x00
 	ClassApplication     = 0x01
@@ -19,24 +19,21 @@ const (
 	ClassPrivate         = 0x03
 )
 
-// Tags. TODO: add all tags
-/**
-TagBitString = 0x03
-TagPrintableString = 0x13
-TagT61String = 0x14
-TagIA5String = 0x16
-TagUtcTime = 0x17
-**/
+// ASN.1 universal tag numbers.
 const (
 	TagEoc             = 0x00
 	TagBoolean         = 0x01
 	TagInteger         = 0x02
+	TagBitString       = 0x03
 	TagOctetString     = 0x04
 	TagNull            = 0x05
 	TagOid             = 0x06
 	TagSequence        = 0x10
 	TagSet             = 0x11
 	TagPrintableString = 0x13
+	TagT61String       = 0x14
+	TagIA5String       = 0x16
+	TagUtcTime         = 0x17
 )
 
 // Internal consts

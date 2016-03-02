@@ -1,7 +1,23 @@
+// Package asn1 implements encoding and decoding of ASN.1 data structures using
+// both Basic Encoding Rules (BER) or its subset Distinguished Encoding Rules
+// (BER).
+//
+// This package is highly inspired by the Go standard package "encoding/asn1"
+// while supporting additional features such as BER encoding and decoding and
+// ASN.1 CHOICE types.
+//
+// By default and for convenience the package uses DER for encoding and BER for
+// encoding. However, it's possible to use a Context object to set the desired
+// encoding and decoding rules and other options.
+//
+// Restrictions:
+//
+// - BER allows STRING types, such as OCTET STRING and BIT STRING, to be
+// encoded as constructed types containing inner elements that should be
+// concatenated to form the complete string. The package does not support that,
+// but in the future decoding of constructed strings should be added.
 package asn1
 
-// TODO package documentation
-// TODO proper log messages
 // TODO add a mechanism for extendability
 // TODO proper checking of the constructed flag
 // TODO support for constructed encoding and decoding of string types in BER
@@ -11,61 +27,81 @@ import (
 	"reflect"
 )
 
-// Internal consts
+// Internal constants.
 const (
 	tagKey = "asn1"
 )
 
-// Encode an object using the default context and without options.
+// Encode returns the DER encoding of obj. Encode uses a default Context and
+// it's equivalent to:
+//
+//	data, err = asn1.NewContext().Encode(obj)
+//
 func Encode(obj interface{}) (data []byte, err error) {
 	ctx := NewContext()
 	return ctx.EncodeWithOptions(obj, "")
 }
 
-// Encode an object using the default context and with options.
+// EncodeWithOptions returns the DER encoding of obj using additional options.
+// EncodeWithOptions uses a default Context and it's equivalent to:
+//
+// data, err = asn1.NewContext().EncodeWithOptions(obj, options)
+//
 func EncodeWithOptions(obj interface{}, options string) (data []byte, err error) {
 	ctx := NewContext()
 	return ctx.EncodeWithOptions(obj, options)
 }
 
-// Encode an object using the given context and without options.
+// Decode parses the given BER data into obj. The argument obj should be a
+// reference to the value that will hold the parsed data. Decode uses a
+// default Context and is equivalent to:
+//
+//	rest, err := asn1.NewContext().Decode(data, &obj)
+//
 func Decode(data []byte, obj interface{}) (rest []byte, err error) {
 	ctx := NewContext()
 	return ctx.DecodeWithOptions(data, obj, "")
 }
 
-// Encode an object using the given context and with options.
+// DecodeWithOptions parses the given BER data into obj using the additional
+// options. The argument obj should be a reference to the value that will hold
+// the parsed data. Decode uses a default Context and is equivalent to:
+//
+//	rest, err := asn1.NewContext().DecodeWithOptions(data, &obj, options)
+//
 func DecodeWithOptions(data []byte, obj interface{}, options string) (rest []byte, err error) {
 	ctx := NewContext()
 	return ctx.DecodeWithOptions(data, obj, options)
 }
 
-// This error is caused by invalid data.
+// ParseError is returned by the package to indicate that the given data is
+// invalid.
 type ParseError struct {
 	Msg string
 }
 
-// Return the error message.
+// Error returns the error message of a ParseError.
 func (e *ParseError) Error() string {
 	return e.Msg
 }
 
-// Allocate a new ParseError.
+// parseError allocates a new ParseError.
 func parseError(ctx *Context, msg string, args ...interface{}) *ParseError {
 	return &ParseError{fmt.Sprintf(msg, args...)}
 }
 
-// This error is caused by invalid structure.
+// SyntaxError is returned by the package to indicate that the given value or
+// struct is invalid.
 type SyntaxError struct {
 	Msg string
 }
 
-// Return the error message.
+// Error returns the error message of a SyntaxError.
 func (e *SyntaxError) Error() string {
 	return e.Msg
 }
 
-// Allocate a new ParseError,
+// syntaxError allocates a new ParseError,
 func syntaxError(ctx *Context, msg string, args ...interface{}) *SyntaxError {
 	return &SyntaxError{fmt.Sprintf(msg, args...)}
 }

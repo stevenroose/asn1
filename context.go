@@ -7,7 +7,7 @@ import (
 	"reflect"
 )
 
-// Context keeps global options for Asn.1 encoding and decoding
+// Context keeps options that affect the ASN.1 encoding and decoding
 //
 // Use the NewContext() function to create a new Context instance:
 //
@@ -40,7 +40,9 @@ type choiceEntry struct {
 	opts *fieldOptions
 }
 
-// NewContext creates and initializes a new context.
+// NewContext creates and initializes a new context. The returned Context does
+// not contains any registered choice and it's set to DER encoding and BER
+// decoding.
 func NewContext() *Context {
 	ctx := &Context{}
 	ctx.log = defaultLogger()
@@ -105,6 +107,61 @@ func (this *Context) addChoiceEntry(choice string, entry choiceEntry) error {
 	return nil
 }
 
+// AddChoice registers a list of types as options to a given choice.
+//
+// The string choice refers to a choice name defined into an element via
+// additional options for DecodeWithOptions and EncodeWithOptions of via
+// struct tags.
+//
+// For example, considering that a field "Value" can be an INTEGER or an OCTET
+// STRING indicating two types of errors, each error with a different tag
+// number, the following can be used:
+//
+//	// Error types
+//	type SimpleError string
+//	type ComplextError string
+//	// The main object
+//	type SomeSequence struct {
+//		// ...
+//		Value	interface{}	`asn1:"choice:value"`
+//		// ...
+//	}
+//	// A Context with the registered choices
+//	ctx := asn1.NewContext()
+//	ctx.AddChoice("value", []Choice {
+//		{
+//			Type: reflect.TypeOf(int(0)),
+//		},
+//		{
+//			Type: reflect.TypeOf(SimpleError("")),
+//			Options: "tag:1",
+//		},
+//		{
+//			Type: reflect.TypeOf(ComplextError("")),
+//			Options: "tag:2",
+//		},
+//	})
+//
+// Some important notes:
+//
+// 1. Any choice value must be an interface. During decoding the necessary type
+// will be allocated to keep the parsed value.
+//
+// 2. The INTEGER type will be encoded using its default class and tag number
+// and it's not necessary to specify any Options for it.
+//
+// 3. The two "error" types in our example are encoded as strings, in order to
+// make possible to differentiate both types during encoding they actually need
+// to be different types. This is solved by defining two alias types:
+// SimpleError and ComplextError.
+//
+// 4. Since both errors use the same encoding type, ASN.1 says they must have
+// distinguished tags. For that, the appropriate tag is defined for each type.
+//
+// To encode a choice value, all that is necessary is to set the choice field
+// with the proper object. To decode a choice value, a type switch can be used
+// to determine with choice type was used.
+//
 func (ctx *Context) AddChoice(choice string, entries []Choice) error {
 	for _, e := range entries {
 		opts, err := parseOptions(ctx, e.Options)
@@ -113,7 +170,8 @@ func (ctx *Context) AddChoice(choice string, entries []Choice) error {
 		}
 		if opts.choice != nil {
 			// TODO Add support for nested choices.
-			return syntaxError(ctx, "nested choices are not allowed: \"%s\" inside \"%s\".",
+			return syntaxError(ctx,
+				"nested choices are not allowed: \"%s\" inside \"%s\".",
 				*opts.choice, choice)
 		}
 		raw := RawValue{}
@@ -139,7 +197,7 @@ func defaultLogger() *log.Logger {
 	return log.New(ioutil.Discard, "", 0)
 }
 
-// SetLogger defines the loggers used by all functions.
+// SetLogger defines the logger used.
 func (this *Context) SetLogger(logger *log.Logger) {
 	if logger == nil {
 		logger = defaultLogger()
