@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/PromonLogicalis/asn1.svg?branch=master)](https://travis-ci.org/PromonLogicalis/asn1)
 # asn1
 --
     import "github.com/PromonLogicalis/asn1"
