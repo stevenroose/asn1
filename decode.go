@@ -34,9 +34,11 @@ func (ctx *Context) Decode(data []byte, obj interface{}) (rest []byte, err error
 // options. The argument obj should be a reference to the value that will hold
 // the parsed data.
 //
-// It uses the reflect package to inspect obj and decode the ASN.1 data
-// structure provided by data. The Context defines the decoding rules (BER or
-// DER) and the types available for CHOICE types.
+// It uses the reflect package to inspect obj and because of that only exported
+// struct fields (those that start with a capital letter) are considered.
+//
+// The Context object defines the decoding rules (BER or DER) and the types
+// available for CHOICE types.
 //
 // The asn1 package maps Go types to ASN.1 data structures. The package also
 // provides types to specific ASN.1 data structures. The default mapping is

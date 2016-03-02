@@ -1,21 +1,21 @@
 // Package asn1 implements encoding and decoding of ASN.1 data structures using
-// both Basic Encoding Rules (BER) or its subset Distinguished Encoding Rules
-// (BER).
+// both Basic Encoding Rules (BER) or its subset, the Distinguished Encoding
+// Rules (BER).
 //
 // This package is highly inspired by the Go standard package "encoding/asn1"
 // while supporting additional features such as BER encoding and decoding and
 // ASN.1 CHOICE types.
 //
 // By default and for convenience the package uses DER for encoding and BER for
-// encoding. However, it's possible to use a Context object to set the desired
-// encoding and decoding rules and other options.
+// decoding. However it's possible to use a Context object to set the desired
+// encoding and decoding rules as well other options.
 //
 // Restrictions:
 //
 // - BER allows STRING types, such as OCTET STRING and BIT STRING, to be
 // encoded as constructed types containing inner elements that should be
 // concatenated to form the complete string. The package does not support that,
-// but in the future decoding of constructed strings should be added.
+// but in the future decoding of constructed strings should be included.
 package asn1
 
 // TODO add a mechanism for extendability

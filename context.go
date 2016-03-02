@@ -13,7 +13,7 @@ import (
 //
 //	ctx := ber.NewContext()
 //	// Set options, ex:
-//	ctx.SetDer(true)
+//	ctx.SetDer(true, true)
 //	// And call decode or encode functions
 //	bytes, err := ctx.EncodeWithOptions(value, "explicit,application,tag:5")
 //	...
@@ -148,9 +148,9 @@ func (this *Context) addChoiceEntry(choice string, entry choiceEntry) error {
 // will be allocated to keep the parsed value.
 //
 // 2. The INTEGER type will be encoded using its default class and tag number
-// and it's not necessary to specify any Options for it.
+// and so it's not necessary to specify any Options for it.
 //
-// 3. The two "error" types in our example are encoded as strings, in order to
+// 3. The two error types in our example are encoded as strings, in order to
 // make possible to differentiate both types during encoding they actually need
 // to be different types. This is solved by defining two alias types:
 // SimpleError and ComplextError.
@@ -160,7 +160,7 @@ func (this *Context) addChoiceEntry(choice string, entry choiceEntry) error {
 //
 // To encode a choice value, all that is necessary is to set the choice field
 // with the proper object. To decode a choice value, a type switch can be used
-// to determine with choice type was used.
+// to determine which type was used.
 //
 func (ctx *Context) AddChoice(choice string, entries []Choice) error {
 	for _, e := range entries {
