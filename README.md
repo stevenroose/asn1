@@ -127,7 +127,7 @@ the following can be used:
     }
     // A Context with the registered choices
     ctx := asn1.NewContext()
-    ctx.AddChoice("value", []Choice {
+    ctx.AddChoice("value", []asn1.Choice {
     	{
     		Type: reflect.TypeOf(int(0)),
     	},
