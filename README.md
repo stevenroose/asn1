@@ -23,35 +23,6 @@ decoding of constructed strings should be added.
 
 ## Usage
 
-```go
-const (
-	ClassUniversal       = 0x00
-	ClassApplication     = 0x01
-	ClassContextSpecific = 0x02
-	ClassPrivate         = 0x03
-)
-```
-ASN.1 class tags.
-
-```go
-const (
-	TagEoc             = 0x00
-	TagBoolean         = 0x01
-	TagInteger         = 0x02
-	TagBitString       = 0x03
-	TagOctetString     = 0x04
-	TagNull            = 0x05
-	TagOid             = 0x06
-	TagSequence        = 0x10
-	TagSet             = 0x11
-	TagPrintableString = 0x13
-	TagT61String       = 0x14
-	TagIA5String       = 0x16
-	TagUtcTime         = 0x17
-)
-```
-ASN.1 universal tag numbers.
-
 #### func  Decode
 
 ```go

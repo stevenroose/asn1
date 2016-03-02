@@ -10,27 +10,27 @@ import (
 
 // ASN.1 class tags.
 const (
-	ClassUniversal       = 0x00
-	ClassApplication     = 0x01
-	ClassContextSpecific = 0x02
-	ClassPrivate         = 0x03
+	classUniversal       = 0x00
+	classApplication     = 0x01
+	classContextSpecific = 0x02
+	classPrivate         = 0x03
 )
 
 // ASN.1 universal tag numbers.
 const (
-	TagEoc             = 0x00
-	TagBoolean         = 0x01
-	TagInteger         = 0x02
-	TagBitString       = 0x03
-	TagOctetString     = 0x04
-	TagNull            = 0x05
-	TagOid             = 0x06
-	TagSequence        = 0x10
-	TagSet             = 0x11
-	TagPrintableString = 0x13
-	TagT61String       = 0x14
-	TagIA5String       = 0x16
-	TagUtcTime         = 0x17
+	tagEoc             = 0x00
+	tagBoolean         = 0x01
+	tagInteger         = 0x02
+	tagBitString       = 0x03
+	tagOctetString     = 0x04
+	tagNull            = 0x05
+	tagOid             = 0x06
+	tagSequence        = 0x10
+	tagSet             = 0x11
+	tagPrintableString = 0x13
+	tagT61String       = 0x14
+	tagIA5String       = 0x16
+	tagUtcTime         = 0x17
 )
 
 // Internal consts

@@ -84,13 +84,13 @@ func (ctx *Context) encodeValue(value reflect.Value, opts *fieldOptions) (raw *r
 	objType := value.Type()
 	switch objType {
 	case bigIntType:
-		raw.Tag = TagInteger
+		raw.Tag = tagInteger
 		encoder = ctx.encodeBigInt
 	case oidType:
-		raw.Tag = TagOid
+		raw.Tag = tagOid
 		encoder = ctx.encodeOid
 	case nullType:
-		raw.Tag = TagNull
+		raw.Tag = tagNull
 		encoder = ctx.encodeNull
 	}
 
@@ -98,23 +98,23 @@ func (ctx *Context) encodeValue(value reflect.Value, opts *fieldOptions) (raw *r
 		// Generic types:
 		switch value.Kind() {
 		case reflect.Bool:
-			raw.Tag = TagBoolean
+			raw.Tag = tagBoolean
 			encoder = ctx.encodeBool
 
 		case reflect.String:
-			raw.Tag = TagOctetString
+			raw.Tag = tagOctetString
 			encoder = ctx.encodeString
 
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			raw.Tag = TagInteger
+			raw.Tag = tagInteger
 			encoder = ctx.encodeInt
 
 		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			raw.Tag = TagInteger
+			raw.Tag = tagInteger
 			encoder = ctx.encodeUint
 
 		case reflect.Struct:
-			raw.Tag = TagSequence
+			raw.Tag = tagSequence
 			raw.Constructed = true
 			encoder = ctx.encodeStruct
 			if opts.set {
@@ -123,10 +123,10 @@ func (ctx *Context) encodeValue(value reflect.Value, opts *fieldOptions) (raw *r
 
 		case reflect.Array, reflect.Slice:
 			if objType.Elem().Kind() == reflect.Uint8 {
-				raw.Tag = TagOctetString
+				raw.Tag = tagOctetString
 				encoder = ctx.encodeOctetString
 			} else {
-				raw.Tag = TagSequence
+				raw.Tag = tagSequence
 				raw.Constructed = true
 				encoder = ctx.encodeSlice
 			}
@@ -145,10 +145,10 @@ func (ctx *Context) applyOptions(value reflect.Value, raw *rawValue, opts *field
 
 	// Change sequence to set
 	if opts.set {
-		if raw.Class != ClassUniversal || raw.Tag != TagSequence {
+		if raw.Class != classUniversal || raw.Tag != tagSequence {
 			return nil, syntaxError(ctx, "Go type \"%s\" does not accept the flag \"set\"", value.Type())
 		}
-		raw.Tag = TagSet
+		raw.Tag = tagSet
 	}
 
 	// Check if this type is an Asn.1 choice
@@ -180,15 +180,15 @@ func (ctx *Context) applyOptions(value reflect.Value, raw *rawValue, opts *field
 
 	// Change tag
 	if opts.tag != nil {
-		raw.Class = ClassContextSpecific
+		raw.Class = classContextSpecific
 		raw.Tag = uint(*opts.tag)
 	}
 	// Change class
 	if opts.universal {
-		raw.Class = ClassUniversal
+		raw.Class = classUniversal
 	}
 	if opts.application {
-		raw.Class = ClassApplication
+		raw.Class = classApplication
 	}
 
 	// Use the indefinite length encoding

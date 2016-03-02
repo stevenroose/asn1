@@ -196,14 +196,14 @@ func (ctx *Context) getExpectedElement(raw *rawValue, elemType reflect.Type, opt
 
 	// Modify the expected tag and decoder function based on the given options
 	if opts.tag != nil {
-		elem.class = ClassContextSpecific
+		elem.class = classContextSpecific
 		elem.tag = uint(*opts.tag)
 	}
 	if opts.universal {
-		elem.class = ClassUniversal
+		elem.class = classUniversal
 	}
 	if opts.application {
-		elem.class = ClassApplication
+		elem.class = classApplication
 	}
 
 	if opts.explicit {
@@ -251,18 +251,18 @@ func (ctx *Context) getExpectedElement(raw *rawValue, elemType reflect.Type, opt
 // getUniversalTag maps an type to a Asn.1 universal type.
 func (ctx *Context) getUniversalTag(objType reflect.Type, opts *fieldOptions) (elem expectedElement, err error) {
 
-	elem.class = ClassUniversal
+	elem.class = classUniversal
 
 	// Special types:
 	switch objType {
 	case bigIntType:
-		elem.tag = TagInteger
+		elem.tag = tagInteger
 		elem.decoder = ctx.decodeBigInt
 	case oidType:
-		elem.tag = TagOid
+		elem.tag = tagOid
 		elem.decoder = ctx.decodeOid
 	case nullType:
-		elem.tag = TagNull
+		elem.tag = tagNull
 		elem.decoder = ctx.decodeNull
 	}
 
@@ -270,23 +270,23 @@ func (ctx *Context) getUniversalTag(objType reflect.Type, opts *fieldOptions) (e
 	if elem.decoder == nil {
 		switch objType.Kind() {
 		case reflect.Bool:
-			elem.tag = TagBoolean
+			elem.tag = tagBoolean
 			elem.decoder = ctx.decodeBool
 
 		case reflect.String:
-			elem.tag = TagOctetString
+			elem.tag = tagOctetString
 			elem.decoder = ctx.decodeString
 
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			elem.tag = TagInteger
+			elem.tag = tagInteger
 			elem.decoder = ctx.decodeInt
 
 		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			elem.tag = TagInteger
+			elem.tag = tagInteger
 			elem.decoder = ctx.decodeUint
 
 		case reflect.Struct:
-			elem.tag = TagSequence
+			elem.tag = tagSequence
 			elem.decoder = ctx.decodeStruct
 			if opts.set {
 				elem.decoder = ctx.decodeStructAsSet
@@ -294,19 +294,19 @@ func (ctx *Context) getUniversalTag(objType reflect.Type, opts *fieldOptions) (e
 
 		case reflect.Array:
 			if objType.Elem().Kind() == reflect.Uint8 {
-				elem.tag = TagOctetString
+				elem.tag = tagOctetString
 				elem.decoder = ctx.decodeOctetString
 			} else {
-				elem.tag = TagSequence
+				elem.tag = tagSequence
 				elem.decoder = ctx.decodeArray
 			}
 
 		case reflect.Slice:
 			if objType.Elem().Kind() == reflect.Uint8 {
-				elem.tag = TagOctetString
+				elem.tag = tagOctetString
 				elem.decoder = ctx.decodeOctetString
 			} else {
-				elem.tag = TagSequence
+				elem.tag = tagSequence
 				elem.decoder = ctx.decodeSlice
 			}
 		}
@@ -314,11 +314,11 @@ func (ctx *Context) getUniversalTag(objType reflect.Type, opts *fieldOptions) (e
 
 	// Check options for universal types
 	if opts.set {
-		if elem.tag != TagSequence {
+		if elem.tag != tagSequence {
 			err = syntaxError(ctx,
 				"Flag \"set\" can't be set to Go type \"%s\"", objType)
 		}
-		elem.tag = TagSet
+		elem.tag = tagSet
 	}
 	return
 }
