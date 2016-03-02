@@ -4,7 +4,7 @@
     import "github.com/PromonLogicalis/asn1"
 
 Package asn1 implements encoding and decoding of ASN.1 data structures using
-both Basic Encoding Rules (BER) or its subset Distinguished Encoding Rules
+both Basic Encoding Rules (BER) or its subset, the Distinguished Encoding Rules
 (BER).
 
 This package is highly inspired by the Go standard package "encoding/asn1" while
@@ -12,15 +12,15 @@ supporting additional features such as BER encoding and decoding and ASN.1
 CHOICE types.
 
 By default and for convenience the package uses DER for encoding and BER for
-encoding. However, it's possible to use a Context object to set the desired
-encoding and decoding rules and other options.
+decoding. However it's possible to use a Context object to set the desired
+encoding and decoding rules as well other options.
 
 Restrictions:
 
 - BER allows STRING types, such as OCTET STRING and BIT STRING, to be encoded as
 constructed types containing inner elements that should be concatenated to form
 the complete string. The package does not support that, but in the future
-decoding of constructed strings should be added.
+decoding of constructed strings should be included.
 
 ## Usage
 
@@ -90,7 +90,7 @@ Use the NewContext() function to create a new Context instance:
 
     ctx := ber.NewContext()
     // Set options, ex:
-    ctx.SetDer(true)
+    ctx.SetDer(true, true)
     // And call decode or encode functions
     bytes, err := ctx.EncodeWithOptions(value, "explicit,application,tag:5")
     ...
@@ -148,9 +148,9 @@ Some important notes:
 will be allocated to keep the parsed value.
 
 2. The INTEGER type will be encoded using its default class and tag number and
-it's not necessary to specify any Options for it.
+so it's not necessary to specify any Options for it.
 
-3. The two "error" types in our example are encoded as strings, in order to make
+3. The two error types in our example are encoded as strings, in order to make
 possible to differentiate both types during encoding they actually need to be
 different types. This is solved by defining two alias types: SimpleError and
 ComplextError.
@@ -160,7 +160,7 @@ distinguished tags. For that, the appropriate tag is defined for each type.
 
 To encode a choice value, all that is necessary is to set the choice field with
 the proper object. To decode a choice value, a type switch can be used to
-determine with choice type was used.
+determine which type was used.
 
 #### func (*Context) Decode
 
@@ -181,9 +181,11 @@ DecodeWithOptions parses the given data into obj using the additional options.
 The argument obj should be a reference to the value that will hold the parsed
 data.
 
-It uses the reflect package to inspect obj and decode the ASN.1 data structure
-provided by data. The Context defines the decoding rules (BER or DER) and the
-types available for CHOICE types.
+It uses the reflect package to inspect obj and because of that only exported
+struct fields (those that start with a capital letter) are considered.
+
+The Context object defines the decoding rules (BER or DER) and the types
+available for CHOICE types.
 
 The asn1 package maps Go types to ASN.1 data structures. The package also
 provides types to specific ASN.1 data structures. The default mapping is shown
