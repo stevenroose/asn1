@@ -186,7 +186,7 @@ func (ctx *Context) decode(reader io.Reader, value reflect.Value, opts *fieldOpt
 // getExpectedElement returns the expected element for a given type. raw is only
 // used as hint when decoding choices.
 // TODO: consider replacing raw for class and tag number.
-func (ctx *Context) getExpectedElement(raw *RawValue, elemType reflect.Type, opts *fieldOptions) (elem expectedElement, err error) {
+func (ctx *Context) getExpectedElement(raw *rawValue, elemType reflect.Type, opts *fieldOptions) (elem expectedElement, err error) {
 
 	// Get the expected universal tag and its decoder for the given Go type
 	elem, err = ctx.getUniversalTag(elemType, opts)
@@ -335,7 +335,7 @@ func (ctx *Context) getExpectedFieldElements(value reflect.Value) ([]expectedFie
 				return nil, err
 			}
 			// Expand choices
-			raw := &RawValue{}
+			raw := &rawValue{}
 			if opts.choice == nil {
 				elem, err := ctx.getExpectedElement(raw, field.Type(), opts)
 				if err != nil {
@@ -365,9 +365,9 @@ func (ctx *Context) getExpectedFieldElements(value reflect.Value) ([]expectedFie
 }
 
 // getRawValuesFromBytes reads up to max values from the byte sequence.
-func (ctx *Context) getRawValuesFromBytes(data []byte, max int) ([]*RawValue, error) {
+func (ctx *Context) getRawValuesFromBytes(data []byte, max int) ([]*rawValue, error) {
 	// Raw values
-	rawValues := []*RawValue{}
+	rawValues := []*rawValue{}
 	reader := bytes.NewBuffer(data)
 	for i := 0; i < max; i++ {
 		// Parse an Asn.1 element
@@ -385,7 +385,7 @@ func (ctx *Context) getRawValuesFromBytes(data []byte, max int) ([]*RawValue, er
 
 // matchExpectedValues tries to decode a sequence of raw values based on the
 // expected elements.
-func (ctx *Context) matchExpectedValues(eValues []expectedFieldElement, rValues []*RawValue) error {
+func (ctx *Context) matchExpectedValues(eValues []expectedFieldElement, rValues []*rawValue) error {
 	// Try to match expected and raw values
 	rIndex := 0
 	for eIndex := 0; eIndex < len(eValues); eIndex++ {

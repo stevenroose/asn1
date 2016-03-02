@@ -12,7 +12,7 @@ func isTagLessThan(c1, t1, c2, t2 uint) bool {
 }
 
 // rawValueSlice is a helper type to sort an slice of RawValues
-type rawValueSlice []*RawValue
+type rawValueSlice []*rawValue
 
 var _ sort.Interface = rawValueSlice{}
 

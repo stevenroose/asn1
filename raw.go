@@ -8,9 +8,6 @@ import (
 	"strconv"
 )
 
-// TODO: doc
-// TODO make RawValue internal
-
 // ASN.1 class tags.
 const (
 	ClassUniversal       = 0x00
@@ -42,7 +39,7 @@ const (
 	intBytes = intBits / 8
 )
 
-type RawValue struct {
+type rawValue struct {
 	Class       uint
 	Tag         uint
 	Constructed bool
@@ -50,7 +47,7 @@ type RawValue struct {
 	Content     []byte
 }
 
-func (raw *RawValue) encode() ([]byte, error) {
+func (raw *rawValue) encode() ([]byte, error) {
 
 	if raw == nil {
 		return []byte{}, nil
@@ -79,7 +76,7 @@ func (raw *RawValue) encode() ([]byte, error) {
 	return buf, nil
 }
 
-func encodeIdentifier(node *RawValue) ([]byte, error) {
+func encodeIdentifier(node *rawValue) ([]byte, error) {
 
 	if node.Class > 0x03 {
 		return nil, fmt.Errorf("Invalid class value: %s", node.Class)
@@ -163,7 +160,7 @@ func removeLeadingBytes(buf []byte, target byte) []byte {
 	return buf[start:]
 }
 
-func decodeRawValue(reader io.Reader) (*RawValue, error) {
+func decodeRawValue(reader io.Reader) (*rawValue, error) {
 
 	class, tag, constructed, err := decodeIdentifier(reader)
 	if err != nil {
@@ -198,7 +195,7 @@ func decodeRawValue(reader io.Reader) (*RawValue, error) {
 		content = content[:len(content)-2]
 	}
 
-	raw := RawValue{class, tag, constructed, indefinite, content}
+	raw := rawValue{class, tag, constructed, indefinite, content}
 	return &raw, nil
 }
 

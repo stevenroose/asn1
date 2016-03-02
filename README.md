@@ -386,19 +386,6 @@ func (e *ParseError) Error() string
 ```
 Error returns the error message of a ParseError.
 
-#### type RawValue
-
-```go
-type RawValue struct {
-	Class       uint
-	Tag         uint
-	Constructed bool
-	Indefinite  bool
-	Content     []byte
-}
-```
-
-
 #### type SyntaxError
 
 ```go

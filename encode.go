@@ -34,7 +34,7 @@ func (ctx *Context) EncodeWithOptions(obj interface{}, options string) (data []b
 }
 
 // Main encode function
-func (ctx *Context) encode(value reflect.Value, opts *fieldOptions) (*RawValue, error) {
+func (ctx *Context) encode(value reflect.Value, opts *fieldOptions) (*rawValue, error) {
 
 	// Skip the interface type
 	switch value.Kind() {
@@ -75,9 +75,9 @@ func (ctx *Context) encode(value reflect.Value, opts *fieldOptions) (*RawValue, 
 	return raw, nil
 }
 
-func (ctx *Context) encodeValue(value reflect.Value, opts *fieldOptions) (raw *RawValue, err error) {
+func (ctx *Context) encodeValue(value reflect.Value, opts *fieldOptions) (raw *rawValue, err error) {
 
-	raw = &RawValue{}
+	raw = &rawValue{}
 	encoder := encoderFunction(nil)
 
 	// Special types:
@@ -141,7 +141,7 @@ func (ctx *Context) encodeValue(value reflect.Value, opts *fieldOptions) (raw *R
 }
 
 // applyOptions modifies a raw value based on the given options.
-func (ctx *Context) applyOptions(value reflect.Value, raw *RawValue, opts *fieldOptions) (*RawValue, error) {
+func (ctx *Context) applyOptions(value reflect.Value, raw *rawValue, opts *fieldOptions) (*rawValue, error) {
 
 	// Change sequence to set
 	if opts.set {
@@ -173,7 +173,7 @@ func (ctx *Context) applyOptions(value reflect.Value, raw *RawValue, opts *field
 		if err != nil {
 			return nil, err
 		}
-		raw = &RawValue{}
+		raw = &rawValue{}
 		raw.Constructed = true
 		raw.Content = content
 	}
@@ -217,9 +217,9 @@ func isFieldExported(field reflect.StructField) bool {
 
 // getRawValuesFromFields encodes each valid field ofa struct value and returns
 // a slice of raw values.
-func (ctx *Context) getRawValuesFromFields(value reflect.Value) ([]*RawValue, error) {
+func (ctx *Context) getRawValuesFromFields(value reflect.Value) ([]*rawValue, error) {
 	// Encode each child to a raw value
-	children := []*RawValue{}
+	children := []*rawValue{}
 	for i := 0; i < value.NumField(); i++ {
 		fieldValue := value.Field(i)
 		fieldStruct := value.Type().Field(i)
@@ -241,7 +241,7 @@ func (ctx *Context) getRawValuesFromFields(value reflect.Value) ([]*RawValue, er
 }
 
 // encodeRawValues is a helper function to encode raw value in sequence.
-func (ctx *Context) encodeRawValues(values ...*RawValue) ([]byte, error) {
+func (ctx *Context) encodeRawValues(values ...*rawValue) ([]byte, error) {
 	content := []byte{}
 	for _, raw := range values {
 		buf, err := raw.encode()

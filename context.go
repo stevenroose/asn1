@@ -174,7 +174,7 @@ func (ctx *Context) AddChoice(choice string, entries []Choice) error {
 				"nested choices are not allowed: \"%s\" inside \"%s\".",
 				*opts.choice, choice)
 		}
-		raw := RawValue{}
+		raw := rawValue{}
 		elem, err := ctx.getExpectedElement(&raw, e.Type, opts)
 		if err != nil {
 			return err
