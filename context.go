@@ -95,15 +95,15 @@ func (ctx *Context) getChoiceByTag(choice string, class, tag uint) (entry choice
 }
 
 // addChoiceEntry adds a single choice to the list associated to a given name.
-func (this *Context) addChoiceEntry(choice string, entry choiceEntry) error {
-	for _, current := range this.choices[choice] {
+func (ctx *Context) addChoiceEntry(choice string, entry choiceEntry) error {
+	for _, current := range ctx.choices[choice] {
 		if current.class == entry.class && current.tag == entry.tag {
 			return fmt.Errorf(
 				"Choice already registered: %s{%d, %d}",
 				choice, entry.class, entry.tag)
 		}
 	}
-	this.choices[choice] = append(this.choices[choice], entry)
+	ctx.choices[choice] = append(ctx.choices[choice], entry)
 	return nil
 }
 
@@ -198,15 +198,15 @@ func defaultLogger() *log.Logger {
 }
 
 // SetLogger defines the logger used.
-func (this *Context) SetLogger(logger *log.Logger) {
+func (ctx *Context) SetLogger(logger *log.Logger) {
 	if logger == nil {
 		logger = defaultLogger()
 	}
-	this.log = logger
+	ctx.log = logger
 }
 
 // SetDer sets DER mode for encofing and decoding.
-func (this *Context) SetDer(encoding bool, decoding bool) {
-	this.der.encoding = encoding
-	this.der.decoding = decoding
+func (ctx *Context) SetDer(encoding bool, decoding bool) {
+	ctx.der.encoding = encoding
+	ctx.der.decoding = decoding
 }

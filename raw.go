@@ -79,7 +79,7 @@ func (raw *rawValue) encode() ([]byte, error) {
 func encodeIdentifier(node *rawValue) ([]byte, error) {
 
 	if node.Class > 0x03 {
-		return nil, fmt.Errorf("Invalid class value: %s", node.Class)
+		return nil, fmt.Errorf("Invalid class value: %d", node.Class)
 	}
 
 	identifier := []byte{0x00}
@@ -112,7 +112,7 @@ func encodeMultiByteTag(tag uint) []byte {
 	bufLen := (intBits-1)/7 + 1
 	buf := make([]byte, bufLen)
 
-	for i, _ := range buf {
+	for i := range buf {
 		shift := uint(7 * (len(buf) - i - 1))
 		mask := uint(0x7f << shift)
 		buf[i] = byte((tag & mask) >> shift)
@@ -138,7 +138,7 @@ func encodeLength(length uint) []byte {
 
 	// A byte slice length is an int. So we just need at most 4 bytes
 	buf := make([]byte, intBytes)
-	for i, _ := range buf {
+	for i := range buf {
 		shift := uint((intBytes - i - 1) * 8)
 		mask := uint(0xff << shift)
 		buf[i] = byte((mask & length) >> shift)
@@ -239,12 +239,12 @@ func decodeMultiByteTag(reader io.Reader) (uint, error) {
 		// Read a byte
 		b, err := readByte(reader)
 		if err != nil {
-			return tag, err
+			return 0, err
 		}
 		// if we need to shift out non zeros bits, so the tag is too big for an uint
-		msb := uint(0xfe) << (intBits - 8) // 7 most significant bits
-		if tag&msb != 0 {
-			return tag, fmt.Errorf("Multi byte tag too big")
+		msb := uint64(0xfe) << (intBits - 8) // 7 most significant bits
+		if uint64(tag)&msb != 0 {
+			return 0, fmt.Errorf("Multi byte tag too big")
 		}
 		// Shift the previous value and add the new 7 bits
 		tag = (tag << 7) | uint(b&0x7f)
@@ -312,8 +312,8 @@ func decodeLength(reader io.Reader) (length uint, indefinite bool, err error) {
 		return
 	}
 	for _, b = range octets {
-		msb := uint(0xff) << (intBits - 8)
-		if length&msb != 0 {
+		msb := uint64(0xff) << (intBits - 8)
+		if uint64(length)&msb != 0 {
 			err = fmt.Errorf("Multi byte length too big")
 			return
 		}

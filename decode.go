@@ -407,7 +407,7 @@ func (ctx *Context) matchExpectedValues(eValues []expectedFieldElement, rValues 
 				}
 				// Mark as found and advance raw values index
 				missing = false
-				rIndex += 1
+				rIndex++
 				// Remove other options for the matched choice
 				if e.opts.choice != nil {
 					for i := eIndex + 1; i < len(eValues); i++ {
