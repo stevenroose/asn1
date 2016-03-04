@@ -266,52 +266,9 @@ func (ctx *Context) getUniversalTag(objType reflect.Type, opts *fieldOptions) (e
 	case nullType:
 		elem.tag = tagNull
 		elem.decoder = ctx.decodeNull
-	}
-
-	// Generic types:
-	if elem.decoder == nil {
-		switch objType.Kind() {
-		case reflect.Bool:
-			elem.tag = tagBoolean
-			elem.decoder = ctx.decodeBool
-
-		case reflect.String:
-			elem.tag = tagOctetString
-			elem.decoder = ctx.decodeString
-
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			elem.tag = tagInteger
-			elem.decoder = ctx.decodeInt
-
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			elem.tag = tagInteger
-			elem.decoder = ctx.decodeUint
-
-		case reflect.Struct:
-			elem.tag = tagSequence
-			elem.decoder = ctx.decodeStruct
-			if opts.set {
-				elem.decoder = ctx.decodeStructAsSet
-			}
-
-		case reflect.Array:
-			if objType.Elem().Kind() == reflect.Uint8 {
-				elem.tag = tagOctetString
-				elem.decoder = ctx.decodeOctetString
-			} else {
-				elem.tag = tagSequence
-				elem.decoder = ctx.decodeArray
-			}
-
-		case reflect.Slice:
-			if objType.Elem().Kind() == reflect.Uint8 {
-				elem.tag = tagOctetString
-				elem.decoder = ctx.decodeOctetString
-			} else {
-				elem.tag = tagSequence
-				elem.decoder = ctx.decodeSlice
-			}
-		}
+	default:
+		// Generic types:
+		elem = ctx.getUniversalTagByKind(objType, opts)
 	}
 
 	// Check options for universal types
@@ -321,6 +278,54 @@ func (ctx *Context) getUniversalTag(objType reflect.Type, opts *fieldOptions) (e
 				"Flag \"set\" can't be set to Go type \"%s\"", objType)
 		}
 		elem.tag = tagSet
+	}
+	return
+}
+
+// getUniversalTagByKind uses type kind to defined the decoder.
+func (ctx *Context) getUniversalTagByKind(objType reflect.Type, opts *fieldOptions) (elem expectedElement) {
+
+	switch objType.Kind() {
+	case reflect.Bool:
+		elem.tag = tagBoolean
+		elem.decoder = ctx.decodeBool
+
+	case reflect.String:
+		elem.tag = tagOctetString
+		elem.decoder = ctx.decodeString
+
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		elem.tag = tagInteger
+		elem.decoder = ctx.decodeInt
+
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		elem.tag = tagInteger
+		elem.decoder = ctx.decodeUint
+
+	case reflect.Struct:
+		elem.tag = tagSequence
+		elem.decoder = ctx.decodeStruct
+		if opts.set {
+			elem.decoder = ctx.decodeStructAsSet
+		}
+
+	case reflect.Array:
+		if objType.Elem().Kind() == reflect.Uint8 {
+			elem.tag = tagOctetString
+			elem.decoder = ctx.decodeOctetString
+		} else {
+			elem.tag = tagSequence
+			elem.decoder = ctx.decodeArray
+		}
+
+	case reflect.Slice:
+		if objType.Elem().Kind() == reflect.Uint8 {
+			elem.tag = tagOctetString
+			elem.decoder = ctx.decodeOctetString
+		} else {
+			elem.tag = tagSequence
+			elem.decoder = ctx.decodeSlice
+		}
 	}
 	return
 }
@@ -421,20 +426,27 @@ func (ctx *Context) matchExpectedValues(eValues []expectedFieldElement, rValues 
 		}
 
 		if missing {
-			if e.opts.optional || e.opts.choice != nil {
-				continue
+			if err := ctx.setMissingFieldValue(e); err != nil {
+				return err
 			}
-			if e.opts.defaultValue != nil {
-				err := ctx.setDefaultValue(e.value, e.opts)
-				if err != nil {
-					return err
-				}
-				continue
-			}
-			return parseError(ctx, "Missing value for [%d %d]", e.class, e.tag)
 		}
 	}
 	return nil
+}
+
+// setMissingFieldValue uses opts values to set the default value.
+func (ctx *Context) setMissingFieldValue(e expectedFieldElement) error {
+	if e.opts.optional || e.opts.choice != nil {
+		return nil
+	}
+	if e.opts.defaultValue != nil {
+		err := ctx.setDefaultValue(e.value, e.opts)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	return parseError(ctx, "Missing value for [%d %d]", e.class, e.tag)
 }
 
 // decodeStruct decodes struct fields in order
