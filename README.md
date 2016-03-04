@@ -300,14 +300,14 @@ options.
 #### func (*Context) SetDer
 
 ```go
-func (this *Context) SetDer(encoding bool, decoding bool)
+func (ctx *Context) SetDer(encoding bool, decoding bool)
 ```
 SetDer sets DER mode for encofing and decoding.
 
 #### func (*Context) SetLogger
 
 ```go
-func (this *Context) SetLogger(logger *log.Logger)
+func (ctx *Context) SetLogger(logger *log.Logger)
 ```
 SetLogger defines the logger used.
 
