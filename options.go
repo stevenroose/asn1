@@ -17,81 +17,102 @@ type fieldOptions struct {
 	choice       *string
 }
 
-func parseOptions(ctx *Context, s string) (*fieldOptions, error) {
-	opts := fieldOptions{}
-	defs := []struct {
-		name string
-		args int
-		ptr  interface{}
-	}{
-		// Flags
-		{"universal", 0, &opts.universal},
-		{"application", 0, &opts.application},
-		{"explicit", 0, &opts.explicit},
-		{"indefinite", 0, &opts.indefinite},
-		{"optional", 0, &opts.optional},
-		// Values
-		{"set", 0, &opts.set},
-		{"tag", 1, &opts.tag},
-		{"default", 1, &opts.defaultValue},
-		{"choice", 1, &opts.choice},
-	}
-
-	for _, token := range strings.Split(s, ",") {
-		invalid := true
-		token = strings.TrimSpace(token)
-		if len(token) == 0 {
-			continue
-		}
-		for _, opt := range defs {
-			if opt.args == 0 {
-				if token == opt.name {
-					switch ptr := opt.ptr.(type) {
-					case *bool:
-						*ptr = true
-					default:
-						panic("Invalid field option type.")
-					}
-					invalid = false
-					break
-				}
-			} else {
-				if strings.HasPrefix(token, opt.name+":") {
-					value := token[len(opt.name)+1:]
-					switch pptr := opt.ptr.(type) {
-					case **int:
-						i, err := strconv.Atoi(value)
-						if err != nil {
-							return nil, syntaxError(ctx,
-								"Invalid value for option \"%s\": %s", opt.name, value)
-						}
-						*pptr = new(int)
-						**pptr = i
-					case **string:
-						*pptr = new(string)
-						**pptr = value
-					default:
-						panic("Invalid field option type.")
-					}
-					invalid = false
-					break
-				}
-			}
-		}
-		if invalid {
-			return nil, syntaxError(ctx, "Invalid option: %s", token)
-		}
-	}
-
+// validate returns an error if any options is invalid.
+func (opts *fieldOptions) validate(ctx *Context) error {
 	tagError := func(class string) error {
 		return syntaxError(ctx,
 			"A tag must be specified when \"%s\" is used.", class)
 	}
 	if opts.universal && opts.tag == nil {
-		return nil, tagError("universal")
+		return tagError("universal")
 	}
 	if opts.application && opts.tag == nil {
-		return nil, tagError("application")
+		return tagError("application")
+	}
+	return nil
+}
+
+// parseOption returns a parsed fieldOptions or a error.
+func parseOptions(ctx *Context, s string) (*fieldOptions, error) {
+	var opts fieldOptions
+	for _, token := range strings.Split(s, ",") {
+		args := strings.Split(strings.TrimSpace(token), ":")
+		err := parseOption(ctx, &opts, args)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if err := opts.validate(ctx); err != nil {
+		return nil, err
 	}
 	return &opts, nil
+}
+
+func parseOption(ctx *Context, opts *fieldOptions, args []string) error {
+	var err error
+	switch args[0] {
+	case "":
+		// ignore
+
+	case "universal":
+		opts.universal, err = parseBoolOption(ctx, args)
+
+	case "application":
+		opts.application, err = parseBoolOption(ctx, args)
+
+	case "explicit":
+		opts.explicit, err = parseBoolOption(ctx, args)
+
+	case "indefinite":
+		opts.indefinite, err = parseBoolOption(ctx, args)
+
+	case "optional":
+		opts.optional, err = parseBoolOption(ctx, args)
+
+	case "set":
+		opts.set, err = parseBoolOption(ctx, args)
+
+	case "tag":
+		opts.tag, err = parseIntOption(ctx, args)
+
+	case "default":
+		opts.defaultValue, err = parseIntOption(ctx, args)
+
+	case "choice":
+		opts.choice, err = parseStringOption(ctx, args)
+
+	default:
+		err = syntaxError(ctx, "Invalid option: %s", args[0])
+	}
+	return err
+}
+
+// parseBoolOption just checks if not arguments were given.
+func parseBoolOption(ctx *Context, args []string) (bool, error) {
+	if len(args) > 1 {
+		return false, syntaxError(ctx, "option '%s' does not have arguments.",
+			args[0])
+	}
+	return true, nil
+}
+
+// parseIntOption parses an integer argument.
+func parseIntOption(ctx *Context, args []string) (*int, error) {
+	if len(args) != 2 {
+		return nil, syntaxError(ctx, "option '%s' does not have arguments.")
+	}
+	num, err := strconv.Atoi(args[1])
+	if err != nil {
+		return nil, syntaxError(ctx, "invalid value '%s' for option '%s'.",
+			args[1], args[0])
+	}
+	return &num, nil
+}
+
+// parseStringOption parses a string argument.
+func parseStringOption(ctx *Context, args []string) (*string, error) {
+	if len(args) != 2 {
+		return nil, syntaxError(ctx, "option '%s' does not have arguments.")
+	}
+	return &args[1], nil
 }
