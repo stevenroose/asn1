@@ -106,7 +106,7 @@ func encodeMultiByteTag(tag uint) []byte {
 
 	// A tag is encoded in a big endian sequence of octets each one holding a 7 bit value.
 	// The most significant bit of each octet must be 1, with the exception of the last octet that must be zero.
-	// Exemple:  1xxxxxxx 1xxxxxxx ... 0xxxxxxx
+	// Example:  1xxxxxxx 1xxxxxxx ... 0xxxxxxx
 
 	// An int32 needs 5 octets and an int64 needs 10:
 	bufLen := (intBits-1)/7 + 1
