@@ -64,7 +64,7 @@ func EncodeWithOptions(obj interface{}, options string) (data []byte, err error)
 EncodeWithOptions returns the DER encoding of obj using additional options.
 EncodeWithOptions uses a default Context and it's equivalent to:
 
-data, err = asn1.NewContext().EncodeWithOptions(obj, options)
+    data, err = asn1.NewContext().EncodeWithOptions(obj, options)
 
 #### type Choice
 
