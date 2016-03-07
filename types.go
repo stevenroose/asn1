@@ -311,7 +311,7 @@ func (ctx *Context) decodeOid(data []byte, value reflect.Value) error {
 	for reader.Len() > 0 {
 		valueN, err := decodeMultiByteTag(reader)
 		if err != nil {
-			return fmt.Errorf("invalid value element in Object Identifier")
+			return parseError("invalid value element in Object Identifier")
 		}
 		oid = append(oid, valueN)
 	}

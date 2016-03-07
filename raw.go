@@ -2,7 +2,6 @@ package asn1
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"strconv"
@@ -66,7 +65,7 @@ func (raw *rawValue) encode() ([]byte, error) {
 	} else {
 		// Indefinite length uses 0x80, data..., 0x00, 0x00
 		if !raw.Constructed {
-			return nil, fmt.Errorf("indefinite length is only allowed to constructed types")
+			return nil, syntaxError("indefinite length is only allowed to constructed types")
 		}
 		buf = append(buf, 0x80)
 		buf = append(buf, raw.Content...)
@@ -79,7 +78,7 @@ func (raw *rawValue) encode() ([]byte, error) {
 func encodeIdentifier(node *rawValue) ([]byte, error) {
 
 	if node.Class > 0x03 {
-		return nil, fmt.Errorf("invalid class value: %d", node.Class)
+		return nil, syntaxError("invalid class value: %d", node.Class)
 	}
 
 	identifier := []byte{0x00}
@@ -172,7 +171,7 @@ func decodeRawValue(reader io.Reader) (*rawValue, error) {
 		return nil, err
 	}
 	if indefinite && !constructed {
-		return nil, fmt.Errorf("primitive node with indefinite length")
+		return nil, parseError("primitive node with indefinite length")
 	}
 
 	// Indefinite form
@@ -213,7 +212,7 @@ func readEoc(reader io.Reader) error {
 		}
 
 		if indefinite && !constructed {
-			return fmt.Errorf("primitive node with indefinite length")
+			return parseError("primitive node with indefinite length")
 		}
 
 		if class == 0 && tag == 0 && indefinite == false && length == 0 {
@@ -244,7 +243,7 @@ func decodeMultiByteTag(reader io.Reader) (uint, error) {
 		// if we need to shift out non zeros bits, so the tag is too big for an uint
 		msb := uint64(0xfe) << (intBits - 8) // 7 most significant bits
 		if uint64(tag)&msb != 0 {
-			return 0, fmt.Errorf("multi byte tag too big")
+			return 0, parseError("multi byte tag too big")
 		}
 		// Shift the previous value and add the new 7 bits
 		tag = (tag << 7) | uint(b&0x7f)
@@ -303,7 +302,7 @@ func decodeLength(reader io.Reader) (length uint, indefinite bool, err error) {
 
 	// Long form
 	if b == 0xff {
-		err = fmt.Errorf("invalid number of length octets: %x", b)
+		err = parseError("invalid number of length octets: %x", b)
 		return
 	}
 	octets := make([]byte, int(b&0x7f))
@@ -314,7 +313,7 @@ func decodeLength(reader io.Reader) (length uint, indefinite bool, err error) {
 	for _, b = range octets {
 		msb := uint64(0xff) << (intBits - 8)
 		if uint64(length)&msb != 0 {
-			err = fmt.Errorf("multi byte length too big")
+			err = parseError("multi byte length too big")
 			return
 		}
 		length = (length << 8) | uint(b)
