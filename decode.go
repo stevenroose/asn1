@@ -134,7 +134,7 @@ func (ctx *Context) Decode(data []byte, obj interface{}) (rest []byte, err error
 //
 func (ctx *Context) DecodeWithOptions(data []byte, obj interface{}, options string) (rest []byte, err error) {
 
-	opts, err := parseOptions(ctx, options)
+	opts, err := parseOptions(options)
 	if err != nil {
 		return nil, err
 	}
@@ -337,7 +337,7 @@ func (ctx *Context) getExpectedFieldElements(value reflect.Value) ([]expectedFie
 		if value.CanSet() {
 			// Get field and options
 			field := value.Field(i)
-			opts, err := parseOptions(ctx, value.Type().Field(i).Tag.Get(tagKey))
+			opts, err := parseOptions(value.Type().Field(i).Tag.Get(tagKey))
 			if err != nil {
 				return nil, err
 			}

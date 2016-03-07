@@ -19,7 +19,7 @@ func (ctx *Context) Encode(obj interface{}) (data []byte, err error) {
 // options.
 func (ctx *Context) EncodeWithOptions(obj interface{}, options string) (data []byte, err error) {
 
-	opts, err := parseOptions(ctx, options)
+	opts, err := parseOptions(options)
 	if err != nil {
 		return nil, err
 	}
@@ -226,7 +226,7 @@ func (ctx *Context) getRawValuesFromFields(value reflect.Value) ([]*rawValue, er
 		// Ignore field that are not exported (that starts with lowercase)
 		if isFieldExported(fieldStruct) {
 			tag := fieldStruct.Tag.Get(tagKey)
-			opts, err := parseOptions(ctx, tag)
+			opts, err := parseOptions(tag)
 			if err != nil {
 				return nil, err
 			}

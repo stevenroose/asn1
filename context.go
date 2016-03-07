@@ -165,7 +165,7 @@ func (ctx *Context) addChoiceEntry(choice string, entry choiceEntry) error {
 //
 func (ctx *Context) AddChoice(choice string, entries []Choice) error {
 	for _, e := range entries {
-		opts, err := parseOptions(ctx, e.Options)
+		opts, err := parseOptions(e.Options)
 		if err != nil {
 			return err
 		}

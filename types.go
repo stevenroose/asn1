@@ -26,7 +26,7 @@ type decoderFunction func([]byte, reflect.Value) error
 
 func (ctx *Context) encodeBool(value reflect.Value) ([]byte, error) {
 	if value.Kind() != reflect.Bool {
-		return nil, wrongType(ctx, reflect.Bool.String(), value)
+		return nil, wrongType(reflect.Bool.String(), value)
 	}
 	if value.Bool() {
 		return []byte{0xff}, nil
@@ -59,7 +59,7 @@ func (ctx *Context) decodeBool(data []byte, value reflect.Value) error {
 func (ctx *Context) encodeBigInt(value reflect.Value) ([]byte, error) {
 	num, ok := value.Interface().(*big.Int)
 	if !ok {
-		return nil, wrongType(ctx, bigIntType.String(), value)
+		return nil, wrongType(bigIntType.String(), value)
 	}
 	if num == nil {
 		return []byte{0x00}, nil
@@ -98,7 +98,7 @@ func (ctx *Context) encodeInt(value reflect.Value) ([]byte, error) {
 	switch value.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 	default:
-		return nil, wrongType(ctx, "signed integer", value)
+		return nil, wrongType("signed integer", value)
 	}
 	n := value.Int()
 	buf := make([]byte, 8)
@@ -143,7 +143,7 @@ func (ctx *Context) encodeUint(value reflect.Value) ([]byte, error) {
 	switch value.Kind() {
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 	default:
-		return nil, wrongType(ctx, "unsigned integer", value)
+		return nil, wrongType("unsigned integer", value)
 	}
 	n := value.Uint()
 	buf := make([]byte, 9)
@@ -182,7 +182,7 @@ func (ctx *Context) encodeOctetString(value reflect.Value) ([]byte, error) {
 	if !(kind == reflect.Array || kind == reflect.Slice) &&
 		value.Type().Elem().Kind() == reflect.Uint8 {
 		// Invalid type or element type
-		return nil, wrongType(ctx, "array or slice of bytes", value)
+		return nil, wrongType("array or slice of bytes", value)
 	}
 	if kind == reflect.Slice {
 		return value.Interface().([]byte), nil
@@ -200,13 +200,13 @@ func (ctx *Context) decodeOctetString(data []byte, value reflect.Value) error {
 	if !(kind == reflect.Array || kind == reflect.Slice) &&
 		value.Type().Elem().Kind() == reflect.Uint8 {
 		// Invalid type or element type
-		return wrongType(ctx, "array or slice of bytes", value)
+		return wrongType("array or slice of bytes", value)
 	}
 	if value.Kind() == reflect.Array {
 		// Check array length
 		if len(data) != value.Len() {
 			t := fmt.Sprintf("[%d]uint8", value.Len())
-			return wrongType(ctx, t, value)
+			return wrongType(t, value)
 		}
 		// Get reference to the array as a slice
 		dest := value.Slice(0, value.Len()).Interface().([]byte)
@@ -221,7 +221,7 @@ func (ctx *Context) decodeOctetString(data []byte, value reflect.Value) error {
 
 func (ctx *Context) encodeString(value reflect.Value) ([]byte, error) {
 	if value.Kind() != reflect.String {
-		return nil, wrongType(ctx, reflect.String.String(), value)
+		return nil, wrongType(reflect.String.String(), value)
 	}
 	return []byte(value.String()), nil
 }
@@ -270,7 +270,7 @@ func (ctx *Context) encodeOid(value reflect.Value) ([]byte, error) {
 	// Check values
 	oid, ok := value.Interface().(Oid)
 	if !ok {
-		return nil, wrongType(ctx, oidType.String(), value)
+		return nil, wrongType(oidType.String(), value)
 	}
 
 	value1 := uint(0)
@@ -326,7 +326,7 @@ type Null struct{}
 func (ctx *Context) encodeNull(value reflect.Value) ([]byte, error) {
 	_, ok := value.Interface().(Null)
 	if !ok {
-		return nil, wrongType(ctx, nullType.String(), value)
+		return nil, wrongType(nullType.String(), value)
 	}
 	return []byte{}, nil
 }
@@ -397,7 +397,7 @@ func removeIntLeadingBytes(buf []byte) []byte {
 	return buf[start:]
 }
 
-func wrongType(ctx *Context, typeName string, value reflect.Value) error {
+func wrongType(typeName string, value reflect.Value) error {
 	return syntaxError(
 		"invalid Go type '%s' found when expecting '%s'",
 		value.Type(), typeName)

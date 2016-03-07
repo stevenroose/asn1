@@ -18,7 +18,7 @@ type fieldOptions struct {
 }
 
 // validate returns an error if any option is invalid.
-func (opts *fieldOptions) validate(ctx *Context) error {
+func (opts *fieldOptions) validate() error {
 	tagError := func(class string) error {
 		return syntaxError(
 			"'tag' must be specified when '%s' is used", class)
@@ -39,54 +39,54 @@ func (opts *fieldOptions) validate(ctx *Context) error {
 }
 
 // parseOption returns a parsed fieldOptions or an error.
-func parseOptions(ctx *Context, s string) (*fieldOptions, error) {
+func parseOptions(s string) (*fieldOptions, error) {
 	var opts fieldOptions
 	for _, token := range strings.Split(s, ",") {
 		args := strings.Split(strings.TrimSpace(token), ":")
-		err := parseOption(ctx, &opts, args)
+		err := parseOption(&opts, args)
 		if err != nil {
 			return nil, err
 		}
 	}
-	if err := opts.validate(ctx); err != nil {
+	if err := opts.validate(); err != nil {
 		return nil, err
 	}
 	return &opts, nil
 }
 
 // parseOption parse a single option.
-func parseOption(ctx *Context, opts *fieldOptions, args []string) error {
+func parseOption(opts *fieldOptions, args []string) error {
 	var err error
 	switch args[0] {
 	case "":
 		// ignore
 
 	case "universal":
-		opts.universal, err = parseBoolOption(ctx, args)
+		opts.universal, err = parseBoolOption(args)
 
 	case "application":
-		opts.application, err = parseBoolOption(ctx, args)
+		opts.application, err = parseBoolOption(args)
 
 	case "explicit":
-		opts.explicit, err = parseBoolOption(ctx, args)
+		opts.explicit, err = parseBoolOption(args)
 
 	case "indefinite":
-		opts.indefinite, err = parseBoolOption(ctx, args)
+		opts.indefinite, err = parseBoolOption(args)
 
 	case "optional":
-		opts.optional, err = parseBoolOption(ctx, args)
+		opts.optional, err = parseBoolOption(args)
 
 	case "set":
-		opts.set, err = parseBoolOption(ctx, args)
+		opts.set, err = parseBoolOption(args)
 
 	case "tag":
-		opts.tag, err = parseIntOption(ctx, args)
+		opts.tag, err = parseIntOption(args)
 
 	case "default":
-		opts.defaultValue, err = parseIntOption(ctx, args)
+		opts.defaultValue, err = parseIntOption(args)
 
 	case "choice":
-		opts.choice, err = parseStringOption(ctx, args)
+		opts.choice, err = parseStringOption(args)
 
 	default:
 		err = syntaxError("Invalid option: %s", args[0])
@@ -95,7 +95,7 @@ func parseOption(ctx *Context, opts *fieldOptions, args []string) error {
 }
 
 // parseBoolOption just checks if no arguments were given.
-func parseBoolOption(ctx *Context, args []string) (bool, error) {
+func parseBoolOption(args []string) (bool, error) {
 	if len(args) > 1 {
 		return false, syntaxError("option '%s' does not have arguments.",
 			args[0])
@@ -104,7 +104,7 @@ func parseBoolOption(ctx *Context, args []string) (bool, error) {
 }
 
 // parseIntOption parses an integer argument.
-func parseIntOption(ctx *Context, args []string) (*int, error) {
+func parseIntOption(args []string) (*int, error) {
 	if len(args) != 2 {
 		return nil, syntaxError("option '%s' does not have arguments.")
 	}
@@ -117,7 +117,7 @@ func parseIntOption(ctx *Context, args []string) (*int, error) {
 }
 
 // parseStringOption parses a string argument.
-func parseStringOption(ctx *Context, args []string) (*string, error) {
+func parseStringOption(args []string) (*string, error) {
 	if len(args) != 2 {
 		return nil, syntaxError("option '%s' does not have arguments.")
 	}
