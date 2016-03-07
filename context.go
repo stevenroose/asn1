@@ -55,7 +55,7 @@ func NewContext() *Context {
 func (ctx *Context) getChoices(choice string) ([]choiceEntry, error) {
 	entries := ctx.choices[choice]
 	if entries == nil {
-		return nil, syntaxError(ctx, "invalid choice '%s'", choice)
+		return nil, syntaxError("invalid choice '%s'", choice)
 	}
 	return entries, nil
 }
@@ -73,7 +73,7 @@ func (ctx *Context) getChoiceByType(choice string, t reflect.Type) (entry choice
 			return
 		}
 	}
-	err = syntaxError(ctx, "invalid Go type '%s' for choice '%s'", t, choice)
+	err = syntaxError("invalid Go type '%s' for choice '%s'", t, choice)
 	return
 }
 
@@ -91,7 +91,7 @@ func (ctx *Context) getChoiceByTag(choice string, class, tag uint) (entry choice
 		}
 	}
 	// TODO convert tag to text
-	err = syntaxError(ctx, "invalid tag [%d,%d] for choice '%s'", class, tag, choice)
+	err = syntaxError("invalid tag [%d,%d] for choice '%s'", class, tag, choice)
 	return
 }
 
@@ -171,7 +171,7 @@ func (ctx *Context) AddChoice(choice string, entries []Choice) error {
 		}
 		if opts.choice != nil {
 			// TODO Add support for nested choices.
-			return syntaxError(ctx,
+			return syntaxError(
 				"nested choices are not allowed: '%s' inside '%s'",
 				*opts.choice, choice)
 		}

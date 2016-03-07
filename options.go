@@ -20,7 +20,7 @@ type fieldOptions struct {
 // validate returns an error if any option is invalid.
 func (opts *fieldOptions) validate(ctx *Context) error {
 	tagError := func(class string) error {
-		return syntaxError(ctx,
+		return syntaxError(
 			"'tag' must be specified when '%s' is used", class)
 	}
 	if opts.universal && opts.tag == nil {
@@ -30,10 +30,10 @@ func (opts *fieldOptions) validate(ctx *Context) error {
 		return tagError("application")
 	}
 	if opts.tag != nil && *opts.tag < 0 {
-		return syntaxError(ctx, "'tag' cannot be negative: %d", *opts.tag)
+		return syntaxError("'tag' cannot be negative: %d", *opts.tag)
 	}
 	if opts.choice != nil && *opts.choice == "" {
-		return syntaxError(ctx, "'choice' cannot be empty")
+		return syntaxError("'choice' cannot be empty")
 	}
 	return nil
 }
@@ -89,7 +89,7 @@ func parseOption(ctx *Context, opts *fieldOptions, args []string) error {
 		opts.choice, err = parseStringOption(ctx, args)
 
 	default:
-		err = syntaxError(ctx, "Invalid option: %s", args[0])
+		err = syntaxError("Invalid option: %s", args[0])
 	}
 	return err
 }
@@ -97,7 +97,7 @@ func parseOption(ctx *Context, opts *fieldOptions, args []string) error {
 // parseBoolOption just checks if no arguments were given.
 func parseBoolOption(ctx *Context, args []string) (bool, error) {
 	if len(args) > 1 {
-		return false, syntaxError(ctx, "option '%s' does not have arguments.",
+		return false, syntaxError("option '%s' does not have arguments.",
 			args[0])
 	}
 	return true, nil
@@ -106,11 +106,11 @@ func parseBoolOption(ctx *Context, args []string) (bool, error) {
 // parseIntOption parses an integer argument.
 func parseIntOption(ctx *Context, args []string) (*int, error) {
 	if len(args) != 2 {
-		return nil, syntaxError(ctx, "option '%s' does not have arguments.")
+		return nil, syntaxError("option '%s' does not have arguments.")
 	}
 	num, err := strconv.Atoi(args[1])
 	if err != nil {
-		return nil, syntaxError(ctx, "invalid value '%s' for option '%s'.",
+		return nil, syntaxError("invalid value '%s' for option '%s'.",
 			args[1], args[0])
 	}
 	return &num, nil
@@ -119,7 +119,7 @@ func parseIntOption(ctx *Context, args []string) (*int, error) {
 // parseStringOption parses a string argument.
 func parseStringOption(ctx *Context, args []string) (*string, error) {
 	if len(args) != 2 {
-		return nil, syntaxError(ctx, "option '%s' does not have arguments.")
+		return nil, syntaxError("option '%s' does not have arguments.")
 	}
 	return &args[1], nil
 }

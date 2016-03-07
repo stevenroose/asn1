@@ -146,7 +146,7 @@ func (ctx *Context) DecodeWithOptions(data []byte, obj interface{}, options stri
 	}
 
 	if !value.CanSet() {
-		return nil, syntaxError(ctx, "go type '%s' is read-only", value.Type())
+		return nil, syntaxError("go type '%s' is read-only", value.Type())
 	}
 
 	reader := bytes.NewBuffer(data)
@@ -167,7 +167,7 @@ func (ctx *Context) decode(reader io.Reader, value reflect.Value, opts *fieldOpt
 		return err
 	}
 	if ctx.der.decoding && raw.Indefinite {
-		return parseError(ctx, "indefinite length form is not supported by DER mode")
+		return parseError("indefinite length form is not supported by DER mode")
 	}
 
 	elem, err := ctx.getExpectedElement(raw, value.Type(), opts)
@@ -178,7 +178,7 @@ func (ctx *Context) decode(reader io.Reader, value reflect.Value, opts *fieldOpt
 	// And tag must match
 	if raw.Class != elem.class || raw.Tag != elem.tag {
 		ctx.log.Printf("%#v\n", opts)
-		return parseError(ctx, "expected tag (%d,%d) but found (%d,%d)",
+		return parseError("expected tag (%d,%d) but found (%d,%d)",
 			elem.class, elem.tag, raw.Class, raw.Tag)
 	}
 
@@ -245,7 +245,7 @@ func (ctx *Context) getExpectedElement(raw *rawValue, elemType reflect.Type, opt
 
 	// At this point a decoder function already be found
 	if elem.decoder == nil {
-		err = parseError(ctx, "go type not supported '%s'", elemType)
+		err = parseError("go type not supported '%s'", elemType)
 	}
 	return
 }
@@ -274,7 +274,7 @@ func (ctx *Context) getUniversalTag(objType reflect.Type, opts *fieldOptions) (e
 	// Check options for universal types
 	if opts.set {
 		if elem.tag != tagSequence {
-			err = syntaxError(ctx,
+			err = syntaxError(
 				"'set' cannot be used with Go type '%s'", objType)
 		}
 		elem.tag = tagSet
@@ -387,7 +387,7 @@ func (ctx *Context) getRawValuesFromBytes(data []byte, max int) ([]*rawValue, er
 			return rawValues, nil
 		}
 	}
-	return nil, parseError(ctx, "too many items for Sequence")
+	return nil, parseError("too many items for Sequence")
 }
 
 // matchExpectedValues tries to decode a sequence of raw values based on the
@@ -446,7 +446,7 @@ func (ctx *Context) setMissingFieldValue(e expectedFieldElement) error {
 		}
 		return nil
 	}
-	return parseError(ctx, "missing value for [%d %d]", e.class, e.tag)
+	return parseError("missing value for [%d %d]", e.class, e.tag)
 }
 
 // decodeStruct decodes struct fields in order
@@ -485,7 +485,7 @@ func (ctx *Context) decodeStructAsSet(data []byte, value reflect.Value) error {
 		prev := expectedElements[i-1]
 		if curr.class == prev.class &&
 			curr.tag == prev.tag {
-			return syntaxError(ctx, "duplicated tag (%d,%d)", curr.class, curr.tag)
+			return syntaxError("duplicated tag (%d,%d)", curr.class, curr.tag)
 		}
 	}
 
@@ -522,7 +522,7 @@ func (ctx *Context) decodeArray(data []byte, value reflect.Value) error {
 	var err error
 	for i := 0; i < value.Len(); i++ {
 		if len(data) == 0 {
-			return parseError(ctx, "missing elements")
+			return parseError("missing elements")
 		}
 		elem := reflect.New(value.Type().Elem()).Elem()
 		data, err = ctx.DecodeWithOptions(data, elem.Addr().Interface(), "")
@@ -532,7 +532,7 @@ func (ctx *Context) decodeArray(data []byte, value reflect.Value) error {
 		value.Index(i).Set(elem)
 	}
 	if len(data) > 0 {
-		return parseError(ctx, "too many elements")
+		return parseError("too many elements")
 	}
 	return nil
 }

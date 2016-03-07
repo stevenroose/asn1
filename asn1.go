@@ -86,7 +86,7 @@ func (e *ParseError) Error() string {
 }
 
 // parseError allocates a new ParseError.
-func parseError(ctx *Context, msg string, args ...interface{}) *ParseError {
+func parseError(msg string, args ...interface{}) *ParseError {
 	return &ParseError{fmt.Sprintf(msg, args...)}
 }
 
@@ -102,7 +102,7 @@ func (e *SyntaxError) Error() string {
 }
 
 // syntaxError allocates a new ParseError,
-func syntaxError(ctx *Context, msg string, args ...interface{}) *SyntaxError {
+func syntaxError(msg string, args ...interface{}) *SyntaxError {
 	return &SyntaxError{fmt.Sprintf(msg, args...)}
 }
 
@@ -117,7 +117,7 @@ func (ctx *Context) setDefaultValue(value reflect.Value, opts *fieldOptions) err
 		value.SetUint(uint64(*opts.defaultValue))
 
 	default:
-		return syntaxError(ctx, "default value is only allowed to integers")
+		return syntaxError("default value is only allowed to integers")
 	}
 	return nil
 }

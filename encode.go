@@ -134,7 +134,7 @@ func (ctx *Context) encodeValue(value reflect.Value, opts *fieldOptions) (raw *r
 	}
 
 	if encoder == nil {
-		return nil, syntaxError(ctx, "invalid Go type: %s", value.Type())
+		return nil, syntaxError("invalid Go type: %s", value.Type())
 	}
 	raw.Content, err = encoder(value)
 	return
@@ -146,7 +146,7 @@ func (ctx *Context) applyOptions(value reflect.Value, raw *rawValue, opts *field
 	// Change sequence to set
 	if opts.set {
 		if raw.Class != classUniversal || raw.Tag != tagSequence {
-			return nil, syntaxError(ctx, "Go type '%s' does not accept the flag 'set'", value.Type())
+			return nil, syntaxError("Go type '%s' does not accept the flag 'set'", value.Type())
 		}
 		raw.Tag = tagSet
 	}
@@ -165,7 +165,7 @@ func (ctx *Context) applyOptions(value reflect.Value, raw *rawValue, opts *field
 	// Add an enclosing tag
 	if opts.explicit {
 		if opts.tag == nil {
-			return nil, syntaxError(ctx,
+			return nil, syntaxError(
 				"invalid flag 'explicit' without tag on Go type '%s'",
 				value.Type())
 		}
@@ -194,7 +194,7 @@ func (ctx *Context) applyOptions(value reflect.Value, raw *rawValue, opts *field
 	// Use the indefinite length encoding
 	if opts.indefinite {
 		if !raw.Constructed {
-			return nil, syntaxError(ctx,
+			return nil, syntaxError(
 				"invalid flag 'indefinite' on Go type: %s",
 				value.Type())
 		}
