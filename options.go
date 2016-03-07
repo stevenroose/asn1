@@ -21,13 +21,19 @@ type fieldOptions struct {
 func (opts *fieldOptions) validate(ctx *Context) error {
 	tagError := func(class string) error {
 		return syntaxError(ctx,
-			"A tag must be specified when \"%s\" is used.", class)
+			"'tag' must be specified when '%s' is used", class)
 	}
 	if opts.universal && opts.tag == nil {
 		return tagError("universal")
 	}
 	if opts.application && opts.tag == nil {
 		return tagError("application")
+	}
+	if opts.tag != nil && *opts.tag < 0 {
+		return syntaxError(ctx, "'tag' cannot be negative: %d", *opts.tag)
+	}
+	if opts.choice != nil && *opts.choice == "" {
+		return syntaxError(ctx, "'choice' cannot be empty")
 	}
 	return nil
 }
