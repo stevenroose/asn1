@@ -53,7 +53,7 @@ func (ctx *Context) decodeBool(data []byte, value reflect.Value) error {
 			return nil
 		}
 	}
-	return parseError(ctx, "Invalid bool value.")
+	return parseError(ctx, "invalid bool value")
 }
 
 func (ctx *Context) encodeBigInt(value reflect.Value) ([]byte, error) {
@@ -117,7 +117,7 @@ func (ctx *Context) decodeInt(data []byte, value reflect.Value) error {
 		return err
 	}
 	if len(data) > 8 {
-		return parseError(ctx, "Integer too large for Go type \"%s\"", value.Type())
+		return parseError(ctx, "integer too large for Go type '%s'", value.Type())
 	}
 	// Sign extend the value
 	extensionByte := byte(0x00)
@@ -162,10 +162,10 @@ func (ctx *Context) decodeUint(data []byte, value reflect.Value) error {
 		return err
 	}
 	if len(data) > 8 {
-		return parseError(ctx, "Integer too large for Go type \"%s\"", value.Type())
+		return parseError(ctx, "integer too large for Go type '%s'", value.Type())
 	}
 	if len(data) > 0 && data[0]&0x80 != 0 {
-		return parseError(ctx, "Negative integer can't be assigned to Go type \"%s\"", value.Type())
+		return parseError(ctx, "negative integer can't be assigned to Go type '%s'", value.Type())
 	}
 	num := uint64(0)
 	for i := 0; i < len(data); i++ {
@@ -277,7 +277,7 @@ func (ctx *Context) encodeOid(value reflect.Value) ([]byte, error) {
 	if len(oid) >= 1 {
 		value1 = oid[0]
 		if value1 > 2 {
-			return nil, parseError(ctx, "Invalid value for first element of OID: %d", value1)
+			return nil, parseError(ctx, "invalid value for first element of OID: %d", value1)
 		}
 	}
 
@@ -285,7 +285,7 @@ func (ctx *Context) encodeOid(value reflect.Value) ([]byte, error) {
 	if len(oid) >= 2 {
 		value2 = oid[1]
 		if value2 > 39 {
-			return nil, parseError(ctx, "Invalid value for first element of OID: %d", value2)
+			return nil, parseError(ctx, "invalid value for first element of OID: %d", value2)
 		}
 	}
 
@@ -311,7 +311,7 @@ func (ctx *Context) decodeOid(data []byte, value reflect.Value) error {
 	for reader.Len() > 0 {
 		valueN, err := decodeMultiByteTag(reader)
 		if err != nil {
-			return fmt.Errorf("Invalid value element in Object Identifier.")
+			return fmt.Errorf("invalid value element in Object Identifier")
 		}
 		oid = append(oid, valueN)
 	}
@@ -335,10 +335,10 @@ func (ctx *Context) decodeNull(data []byte, value reflect.Value) error {
 	// TODO check value type
 	_, ok := value.Interface().(Null)
 	if !ok {
-		return syntaxError(ctx, "Invalid type: %s", value.Type())
+		return syntaxError(ctx, "invalid type: %s", value.Type())
 	}
 	if len(data) != 0 {
-		return parseError(ctx, "Invalid data for Null type")
+		return parseError(ctx, "invalid data for Null type")
 	}
 	return nil
 }
@@ -352,7 +352,7 @@ func checkInt(ctx *Context, data []byte) error {
 		if len(data) >= 2 {
 			if data[0] == 0xff || data[0] == 0x00 {
 				if data[0]&0x80 == data[1]&0x80 {
-					return parseError(ctx, "Integer not encoded in the short form")
+					return parseError(ctx, "integer not encoded in the short form")
 				}
 			}
 		}
@@ -399,6 +399,6 @@ func removeIntLeadingBytes(buf []byte) []byte {
 
 func wrongType(ctx *Context, typeName string, value reflect.Value) error {
 	return syntaxError(ctx,
-		"Invalid Go type \"%s\" found when expecting \"%s\"",
+		"invalid Go type '%s' found when expecting '%s'",
 		value.Type(), typeName)
 }

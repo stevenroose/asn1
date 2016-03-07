@@ -117,7 +117,7 @@ func (ctx *Context) setDefaultValue(value reflect.Value, opts *fieldOptions) err
 		value.SetUint(uint64(*opts.defaultValue))
 
 	default:
-		return syntaxError(ctx, "Default value is only allow to integers")
+		return syntaxError(ctx, "default value is only allowed to integers")
 	}
 	return nil
 }

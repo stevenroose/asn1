@@ -55,7 +55,7 @@ func NewContext() *Context {
 func (ctx *Context) getChoices(choice string) ([]choiceEntry, error) {
 	entries := ctx.choices[choice]
 	if entries == nil {
-		return nil, syntaxError(ctx, "Invalid choice \"%s\"", choice)
+		return nil, syntaxError(ctx, "invalid choice '%s'", choice)
 	}
 	return entries, nil
 }
@@ -73,7 +73,7 @@ func (ctx *Context) getChoiceByType(choice string, t reflect.Type) (entry choice
 			return
 		}
 	}
-	err = syntaxError(ctx, "Invalid Go type \"%s\" for choice \"%s\"", t, choice)
+	err = syntaxError(ctx, "invalid Go type '%s' for choice '%s'", t, choice)
 	return
 }
 
@@ -90,7 +90,8 @@ func (ctx *Context) getChoiceByTag(choice string, class, tag uint) (entry choice
 			return
 		}
 	}
-	err = syntaxError(ctx, "Invalid tag [%d,%d] for choice \"%s\"", class, tag, choice) // TODO
+	// TODO convert tag to text
+	err = syntaxError(ctx, "invalid tag [%d,%d] for choice '%s'", class, tag, choice)
 	return
 }
 
@@ -99,7 +100,7 @@ func (ctx *Context) addChoiceEntry(choice string, entry choiceEntry) error {
 	for _, current := range ctx.choices[choice] {
 		if current.class == entry.class && current.tag == entry.tag {
 			return fmt.Errorf(
-				"Choice already registered: %s{%d, %d}",
+				"choice already registered: %s{%d, %d}",
 				choice, entry.class, entry.tag)
 		}
 	}
@@ -171,7 +172,7 @@ func (ctx *Context) AddChoice(choice string, entries []Choice) error {
 		if opts.choice != nil {
 			// TODO Add support for nested choices.
 			return syntaxError(ctx,
-				"nested choices are not allowed: \"%s\" inside \"%s\".",
+				"nested choices are not allowed: '%s' inside '%s'",
 				*opts.choice, choice)
 		}
 		raw := rawValue{}
