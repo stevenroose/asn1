@@ -17,7 +17,7 @@ type fieldOptions struct {
 	choice       *string
 }
 
-// validate returns an error if any options is invalid.
+// validate returns an error if any option is invalid.
 func (opts *fieldOptions) validate(ctx *Context) error {
 	tagError := func(class string) error {
 		return syntaxError(ctx,
@@ -32,7 +32,7 @@ func (opts *fieldOptions) validate(ctx *Context) error {
 	return nil
 }
 
-// parseOption returns a parsed fieldOptions or a error.
+// parseOption returns a parsed fieldOptions or an error.
 func parseOptions(ctx *Context, s string) (*fieldOptions, error) {
 	var opts fieldOptions
 	for _, token := range strings.Split(s, ",") {
@@ -48,6 +48,7 @@ func parseOptions(ctx *Context, s string) (*fieldOptions, error) {
 	return &opts, nil
 }
 
+// parseOption parse a single option.
 func parseOption(ctx *Context, opts *fieldOptions, args []string) error {
 	var err error
 	switch args[0] {
@@ -87,7 +88,7 @@ func parseOption(ctx *Context, opts *fieldOptions, args []string) error {
 	return err
 }
 
-// parseBoolOption just checks if not arguments were given.
+// parseBoolOption just checks if no arguments were given.
 func parseBoolOption(ctx *Context, args []string) (bool, error) {
 	if len(args) > 1 {
 		return false, syntaxError(ctx, "option '%s' does not have arguments.",
