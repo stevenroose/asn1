@@ -347,6 +347,18 @@ func (ctx *Context) decodeNull(data []byte, value reflect.Value) error {
  * Helper functions
  */
 
+// getActualType recursively gets the underlying type of Interfaces and Pointers.
+func getActualType(value reflect.Value) reflect.Value {
+	for {
+		switch value.Kind() {
+		case reflect.Ptr, reflect.Interface:
+			value = value.Elem()
+		default:
+			return value
+		}
+	}
+}
+
 func checkInt(ctx *Context, data []byte) error {
 	if ctx.der.decoding {
 		if len(data) >= 2 {
