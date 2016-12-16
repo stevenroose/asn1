@@ -4,6 +4,7 @@ import (
 	"math/big"
 	"reflect"
 	"testing"
+	"fmt"
 )
 
 // isBytesEqual compares two byte arrays/slices.
@@ -26,9 +27,14 @@ type testCase struct {
 	expected []byte
 }
 
+func (t testCase) String() string {
+	return fmt.Sprintf("testCase: value %#v (%T) expects %#v", t.value, t.value, t.expected)
+}
+
 // testEncode encodes an object and compares with the expected bytes.
 func testEncode(t *testing.T, ctx *Context, options string, tests ...testCase) {
 	for _, test := range tests {
+		t.Logf("Testing case: %v", test)
 		data, err := ctx.EncodeWithOptions(test.value, options)
 		if err != nil {
 			t.Fatal(err)
