@@ -1,10 +1,10 @@
 package asn1
 
 import (
+	"fmt"
 	"math/big"
 	"reflect"
 	"testing"
-	"fmt"
 )
 
 // isBytesEqual compares two byte arrays/slices.
@@ -264,6 +264,22 @@ func TestOctetString(t *testing.T) {
 			t.Fatal("OctetString with length different from array should have failed.")
 		}
 	}
+}
+
+func TestBitString(t *testing.T) {
+	// bit string 011011100101110111
+	bs := BitString{
+		Bytes:     []byte{0x6e, 0x5d, 0xc0},
+		BitLength: 18,
+	}
+	encoded := []byte{0x03, 0x04, 0x06, 0x6e, 0x5d, 0xc0}
+	// make sure it's the right string
+	if bs.At(0) != 0 || bs.At(4) != 1 || bs.At(14) != 0 || bs.At(17) != 1 {
+		t.Fatal("incorrect bitstring constructed for testing")
+	}
+
+	ctx := NewContext()
+	testEncodeDecode(t, ctx, "", testCase{value: bs, expected: encoded})
 }
 
 func TestSimpleOid(t *testing.T) {
@@ -710,7 +726,7 @@ func TestArraySlice(t *testing.T) {
 }
 
 func TestPointerInterface(t *testing.T) {
-	type I interface {}
+	type I interface{}
 	type Type struct {
 		A int
 		B string
