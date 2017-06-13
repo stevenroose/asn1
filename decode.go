@@ -264,6 +264,9 @@ func (ctx *Context) getUniversalTag(objType reflect.Type, opts *fieldOptions) (e
 	case bigIntType:
 		elem.tag = tagInteger
 		elem.decoder = ctx.decodeBigInt
+	case bitStringType:
+		elem.tag = tagBitString
+		elem.decoder = ctx.decodeBitString
 	case oidType:
 		elem.tag = tagOid
 		elem.decoder = ctx.decodeOid

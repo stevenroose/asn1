@@ -9,9 +9,10 @@ import (
 
 // Pre-calculated types for convenience
 var (
-	bigIntType = reflect.TypeOf((*big.Int)(nil))
-	oidType    = reflect.TypeOf(Oid{})
-	nullType   = reflect.TypeOf(Null{})
+	bigIntType    = reflect.TypeOf((*big.Int)(nil))
+	bitStringType = reflect.TypeOf(BitString{})
+	oidType       = reflect.TypeOf(Oid{})
+	nullType      = reflect.TypeOf(Null{})
 )
 
 /*
@@ -236,6 +237,77 @@ func (ctx *Context) decodeString(data []byte, value reflect.Value) error {
 /*
  * Custom types
  */
+
+// BIT STRING
+
+// BitString is the structure to use when you want an ASN.1 BIT STRING type. A
+// bit string is padded up to the nearest byte in memory and the number of
+// valid bits is recorded. Padding bits will be zero.
+type BitString struct {
+	Bytes     []byte // bits packed into bytes.
+	BitLength int    // length in bits.
+}
+
+// At returns the bit at the given index. If the index is out of range it
+// returns 0.
+func (b BitString) At(i int) int {
+	if i < 0 || i >= b.BitLength {
+		return 0
+	}
+	x := i / 8
+	y := 7 - uint(i%8)
+	return int(b.Bytes[x]>>y) & 1
+}
+
+// RightAlign returns a slice where the padding bits are at the beginning. The
+// slice may share memory with the BitString.
+func (b BitString) RightAlign() []byte {
+	shift := uint(8 - (b.BitLength % 8))
+	if shift == 8 || len(b.Bytes) == 0 {
+		return b.Bytes
+	}
+
+	a := make([]byte, len(b.Bytes))
+	a[0] = b.Bytes[0] >> shift
+	for i := 1; i < len(b.Bytes); i++ {
+		a[i] = b.Bytes[i-1] << (8 - shift)
+		a[i] |= b.Bytes[i] >> shift
+	}
+
+	return a
+}
+
+func (ctx *Context) encodeBitString(value reflect.Value) ([]byte, error) {
+	bitString, ok := value.Interface().(BitString)
+	if !ok {
+		return nil, wrongType(bitStringType.String(), value)
+	}
+
+	data := make([]byte, len(bitString.Bytes)+1)
+	// As the first octet, we encode the number of unused bits at the end.
+	data[0] = byte(8 - (bitString.BitLength % 8))
+	copy(data[1:], bitString.Bytes)
+	return data, nil
+}
+
+func (ctx *Context) decodeBitString(data []byte, value reflect.Value) error {
+	// TODO check value type
+	if len(data) == 0 {
+		return syntaxError("zero length BIT STRING")
+	}
+	paddingBits := int(data[0])
+	if paddingBits > 7 ||
+		len(data) == 1 && paddingBits > 0 ||
+		data[len(data)-1]&((1<<data[0])-1) != 0 {
+		return syntaxError("invalid padding bits in BIT STRING")
+	}
+	var obj BitString
+	obj.BitLength = (len(data)-1)*8 - paddingBits
+	obj.Bytes = data[1:]
+
+	value.Set(reflect.ValueOf(obj))
+	return nil
+}
 
 // Oid is used to encode and decode ASN.1 OBJECT IDENTIFIERs.
 type Oid []uint

@@ -87,6 +87,9 @@ func (ctx *Context) encodeValue(value reflect.Value, opts *fieldOptions) (raw *r
 	case bigIntType:
 		raw.Tag = tagInteger
 		encoder = ctx.encodeBigInt
+	case bitStringType:
+		raw.Tag = tagBitString
+		encoder = ctx.encodeBitString
 	case oidType:
 		raw.Tag = tagOid
 		encoder = ctx.encodeOid
